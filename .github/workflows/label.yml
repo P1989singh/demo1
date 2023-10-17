@@ -17,7 +17,14 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@master
+      - name: Cache Node.js Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: | 
+            npm-${{ runner.os }}-
+
       - uses: actions/setup-node@v1
         with:
           node-version: "12.x"
