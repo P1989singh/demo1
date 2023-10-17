@@ -1,4 +1,19 @@
 {
+  "name": "semantic-release-with-github-actions",
+  "version": "0.0.0-development",
+  "repository": "https://github.com/P1989singh/DEMO",
+  "main": "blank.yml",
+
+  "release": {
+    "branches": ["main"],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
+  },
   "dependencies": {
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
