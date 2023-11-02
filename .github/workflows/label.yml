@@ -1,40 +1,43 @@
-# This workflow will triage pull requests and apply a label based on the
-# paths that are modified in the pull request.
-#
-# To use this workflow, you will need to set up a .github/labeler.yml
-# file with configuration.  For more information, see:
-# https://github.com/actions/labeler
-
-name: Label1
-on: [push]
-
+name: Release Workflow
+on:
+  push:
+    branches:
+      - main
 jobs:
-  label:
-
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-
+  Testing:
+    runs-on: ubuntu-latest 
     steps:
-      - name: Cache Node.js Dependencies
-        uses: actions/cache@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: | 
-            npm-${{ runner.os }}-
+          node-version: 14
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
-      - run: npx semantic-release  
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          #NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-    #  - uses: actions/labeler@v4
-       # with:
-       #   GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Install dependencies
+        run: npm install 
+      - name: Determine Version
+        id: increment1
+        run: | 
+            bash  ./.github/workflows/increment.sh 
+            env:
+              GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+              VERSION: ${{ steps.increment1.outputs.VERSION }}
+              IS_PRERELEASE: ${{ steps.increment1.outputs.IS_PRERELEASE }}     
+      - name: Tag and Create Release
+        run: |
+            if [ "${{ env.IS_PRERELEASE }}" == "true" ]; then
+              # Create a pre-release tag
+              git tag -a "v${{ env.VERSION }}" -m "Pre-release v${{ env.VERSION }}"
+            else
+              # Create a release tag
+              git tag -a "v${{ env.VERSION }}" -m "Release v${{ env.VERSION }}"
+            fi
+            git config user.name "P1989singh"
+            git config user.email "prmkmrsingh@yahoo.in"  
+            # Push the tags to the repository
+            git push origin "v${{ env.VERSION }}"
+            # You can also create a GitHub release here
+    env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}    
+
