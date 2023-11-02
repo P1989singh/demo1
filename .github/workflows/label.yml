@@ -38,6 +38,5 @@ jobs:
             # Push the tags to the repository
             git push origin "v${{ env.VERSION }}"
             # You can also create a GitHub release here
-    env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}    
+   
 
